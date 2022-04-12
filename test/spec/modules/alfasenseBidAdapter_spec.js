@@ -1,19 +1,19 @@
-// import { expect } from 'chai';
-// import { spec } from 'modules/adriverBidAdapter.js';
-// import { newBidder } from 'src/adapters/bidderFactory.js';
-// import * as bidderFactory from 'src/adapters/bidderFactory.js';
-// import { auctionManager } from 'src/auctionManager.js';
-//
-// const ENDPOINT = 'https://pb.adriver.ru/cgi-bin/bid.cgi';
-//
-// describe('adriverAdapter', function () {
-//   const adapter = newBidder(spec);
-//
-//   describe('inherited functions', function () {
-//     it('exists and is a function', function () {
-//       expect(adapter.callBids).to.exist.and.to.be.a('function');
-//     });
-//   });
+import { expect } from 'chai';
+import { spec } from 'modules/alfasenseBidAdapter.js';
+import { newBidder } from 'src/adapters/bidderFactory.js';
+import * as bidderFactory from 'src/adapters/bidderFactory.js';
+import { auctionManager } from 'src/auctionManager.js';
+
+const ENDPOINT = 'https://pb.adriver.ru/cgi-bin/bid.cgi';
+
+describe('alfasenseAdapter', function () {
+  const adapter = newBidder(spec);
+
+  describe('inherited functions', function () {
+    it('exists and is a function', function () {
+      expect(adapter.callBids).to.exist.and.to.be.a('function');
+    });
+  });
 //
 //   describe('isBidRequestValid', function () {
 //     const bid = {
@@ -618,4 +618,4 @@
 //       expect(payload.user.ext.eids[1].uids[0].id).to.equal('01F4W41TMN7NBXBA0PXJMPB7GF');
 //     });
 //   });
-// });
+});

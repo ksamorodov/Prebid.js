@@ -1,0 +1,222 @@
+<html>
+<head>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <script async src="//www.googletagservices.com/tag/js/gpt.js"></script>
+    <!--    <script async src="prebid.js"></script>-->
+    <script src="../../build/dev/prebid.js" async></script>
+    <script src="../../src/ajax.js" async></script>
+    <script>
+        var div_1_sizes = [
+            [300, 250],
+            [300, 600]
+        ];
+        var div_2_sizes = [
+            [728, 90],
+            [970, 250]
+        ];
+        var PREBID_TIMEOUT = 1000;
+        var FAILSAFE_TIMEOUT = 3000;
+        var adUnits = [
+            {
+                code: '/19968336/header-bid-tag-0',
+                mediaTypes: {
+                    banner: {
+                        sizes: div_1_sizes
+                    }
+                },
+                bids: [{
+                    bidder: 'adriver',
+                    params: {
+                        siteid: '216200',
+                        bidfloor: 0,
+                        placementId: 'test1'
+                    }
+                }]
+            },
+            {
+                code: '/19968336/header-bid-tag-1',
+                mediaTypes: {
+                    banner: {
+                        sizes: div_2_sizes
+                    }
+                },
+                bids: [{
+                    bidder: 'alfasense',
+                    params: {
+                        siteid: '216200',
+                        bidfloor: 1.33,
+                        placementId: 'test2'
+                    }
+                }]
+            }
+        ];
+        // ======== DO NOT EDIT BELOW THIS LINE =========== //
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+        googletag.cmd.push(function () {
+            googletag.pubads().disableInitialLoad();
+        });
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+        pbjs.que.push(function () {
+            pbjs.addAdUnits(adUnits);
+            pbjs.setConfig({
+                floors: {
+                    enforcement: {
+                        floorDeals: false, //default to false
+                        bidAdjustment: true
+                    },
+                    data: {     // default if endpoint doesn't return in time
+                        currency: 'USD',
+                        skipRate: 5,
+                        modelVersion: 'BlackBerryZap',
+                        schema: {
+                            fields: ['gptSlot', 'mediaType', 'size']
+                        },
+                        values: {
+                            '*|banner|600x500': 6.5,
+                            '*|banner|300x250': 3.25,
+                            '*|video': 3.5,
+                            '*|banner|*': 4.75,
+                        }
+                    }
+                },
+                userSync: {
+                    userIds: [
+                        {
+                            name: 'sharedId',
+                            params: {
+                                syncTime: 60 // in seconds, default is 24 hours
+                            },
+                            storage: {
+                                name: 'sharedid',
+                                type: 'cookie',
+                                expires: 28
+                            },
+                        },
+                        {
+                            name: 'uid2'
+                        },
+                        {
+                            name: 'id5Id',
+                            params: {
+                                partner: 173,            // change to the Partner Number you received from ID5
+                                pd: 'MT1iNTBjY...',      // optional, see table below for a link to how to generate this
+                                abTesting: {             // optional
+                                    enabled: true,         // false by default
+                                    controlGroupPct: 0.1   // valid values are 0.0 - 1.0 (inclusive)
+                                }
+                            },
+                            storage: {
+                                type: 'html5',           // "html5" is the required storage type
+                                name: 'id5id',           // "id5id" is the required storage name
+                                expires: 90,             // storage lasts for 90 days
+                                refreshInSeconds: 8 * 3600 // refresh ID every 8 hours to ensure it's fresh
+                            }
+                        },
+                        {
+                            name: 'adriverId'
+                        },
+                        {
+                            name: 'criteo'
+                        },
+                    ]
+                }
+            });
+            pbjs.requestBids({
+                bidsBackHandler: initAdserver,
+                timeout: PREBID_TIMEOUT
+            });
+        });
+        function initAdserver() {
+            if (pbjs.initAdserverSet) return;
+            pbjs.initAdserverSet = true;
+            googletag.cmd.push(function () {
+                pbjs.que.push(function () {
+                    pbjs.setTargetingForGPTAsync();
+                    googletag.pubads().refresh();
+                });
+            });
+        }
+        // in case PBJS doesn't load
+        setTimeout(function () {
+            initAdserver();
+        }, FAILSAFE_TIMEOUT);
+        googletag.cmd.push(function () {
+            googletag.defineSlot('/19968336/header-bid-tag-0', div_1_sizes, 'div-1').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+        googletag.cmd.push(function () {
+            googletag.defineSlot('/19968336/header-bid-tag-1', div_2_sizes, 'div-2').addService(googletag.pubads());
+            googletag.pubads().enableSingleRequest();
+            googletag.enableServices();
+        });
+    </script>
+</head>
+<body>
+<h2>Basic Prebid.js Example</h2>
+<h2>With user Id</h2>
+<h5>Div-1</h5>
+<div id='div-1'>
+    <script type='text/javascript'>
+        googletag.cmd.push(function () {
+            googletag.display('div-1');
+        });
+    </script>
+</div>
+<br>
+<h5>Div-2</h5>
+<div id='div-2'>
+    <script type='text/javascript'>
+        googletag.cmd.push(function () {
+            googletag.display('div-2');
+        });
+    </script>
+</div>
+<script>
+    function test(){
+        ajax.ajaxBuilder()(
+            url,
+            {
+                success: response => {
+                    const jsonResponse = JSON.parse(response);
+                    if (jsonResponse.adriverid) {
+                        saveOnAllStorages(bididStorageKey, jsonResponse.bidId);
+                    } else {
+                        deleteFromAllStorages(bididStorageKey);
+                    }
+                    if (jsonResponse.acwsUrl) {
+                        const urlsToCall = typeof jsonResponse.acwsUrl === 'string' ? [jsonResponse.acwsUrl] : jsonResponse.acwsUrl;
+                        urlsToCall.forEach(url => utils.triggerPixel(url));
+                    } else if (jsonResponse.bundle) {
+                        saveOnAllStorages(bundleStorageKey, jsonResponse.bundle);
+                    }
+                },
+                error: () => {
+                    storage.setCookie('error', 'erroro', pastDateString);
+                }
+            },
+            undefined,
+            { method: 'GET',
+                headers: '\'Access-Control-Allow-Origin\': \'*\'',
+                contentType: 'application/json',
+                withCredentials: true }
+        );
+    }
+</script>
+<button type="button" onclick="test()">Test</button>
+</body>
+</html>
+Свернуть
+
+
+
+
+
+
+
+
+
+
+
