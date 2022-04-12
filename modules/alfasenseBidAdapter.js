@@ -2,6 +2,7 @@
 // eslint-disable-next-line standard/object-curly-even-spacing
 import { logInfo, getBidIdParameter} from '../src/utils.js';
 import { getStorageManager } from '../src/storageManager.js';
+import {registerBidder} from "../src/adapters/bidderFactory";
 
 const BIDDER_CODE = 'alfasense';
 const ALFASENSE_BID_URL = 'https://pbs.alfasense.com'; // todo update url
@@ -66,3 +67,4 @@ export const spec = {
     return bidResponses;
   },
 };
+registerBidder(spec);
