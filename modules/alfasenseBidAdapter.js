@@ -1,8 +1,7 @@
 // ALFASENSE BID ADAPTER for Prebid 1.13
-// eslint-disable-next-line standard/object-curly-even-spacing
-import { logInfo, getBidIdParameter} from '../src/utils.js';
+import { logInfo, getBidIdParameter } from '../src/utils.js';
 import { getStorageManager } from '../src/storageManager.js';
-import {registerBidder} from "../src/adapters/bidderFactory";
+import { registerBidder } from '../src/adapters/bidderFactory.js';
 
 const BIDDER_CODE = 'alfasense';
 const ALFASENSE_BID_URL = 'https://pbs.alfasense.com'; // todo update url
@@ -20,32 +19,30 @@ export const spec = {
    */
   isBidRequestValid: function (bid) {
     return !!bid.params.placementId;
-    // && !!bid.params.id && !!bid.params.sizes;
   },
 
   buildRequests: function (validBidRequests, bidderRequest) {
     logInfo('validBidRequests', validBidRequests);
 
-    // let win = getWindowLocation();
-    // let customID = Math.round(Math.random() * 999999999) + '-' + Math.round(new Date() / 1000) + '-1-46-';
-    let id = getBidIdParameter('id', validBidRequests[0].params) + '';
-    let placementId = getBidIdParameter('placementId', validBidRequests[0].params) + '';
-    let currency = getBidIdParameter('currency', validBidRequests[0].params);
-    let sizes = getBidIdParameter('sizes', validBidRequests[0].params);
-    currency = 'RUB';
+    let currency = 'RUB';
 
     const payload = {
-      'places': [
-        {
-          'id': id,
-          'placementId': placementId,
-          'sizes': sizes,
-        }
-      ],
+      'places': [],
       'settings': {
         'currency': currency,
       }
     };
+    validBidRequests.forEach((iterator) => {
+      let id = getBidIdParameter('siteid', iterator.params) + '';
+      let placementId = getBidIdParameter('placementId', iterator.params) + '';
+      let sizes = getBidIdParameter('sizes', validBidRequests[0]);
+
+      payload.places.push({
+        'id': id,
+        'placementId': placementId,
+        'sizes': sizes
+      });
+    });
 
     return {
       method: REQUEST_METHOD,
@@ -59,11 +56,24 @@ export const spec = {
   },
 
   interpretResponse: function (serverResponse, bidRequest) {
-    const response = serverResponse.body;
     const bidResponses = [];
-    if (!response.error) {
-      bidResponses.push(response);
-    }
+    const bidResponse = {
+      requestId: bidRequest.data.places[0].id,
+      cpm: serverResponse.body.bids[0].cpm,
+      currency: serverResponse.body.bids[0].currency,
+      width: serverResponse.body.bids[0].size.width,
+      height: serverResponse.body.bids[0].size.height,
+      creativeId: '123abc', // ?
+      dealId: '123abc', // ?
+      netRevenue: true, // ?
+      ttl: 350, // ?
+      ad: serverResponse.body.bids[0].displayurl, // ?
+      mediaType: 'native', // ?
+      meta: {
+        advertiserDomains: [], // ?
+      }
+    };
+    bidResponses.push(bidResponse);
     return bidResponses;
   },
 };
